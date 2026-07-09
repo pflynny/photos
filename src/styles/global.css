@@ -1,0 +1,338 @@
+:root {
+  --paper: #fdfcfa;
+  --ink: #1c1b19;
+  --ink-soft: #8c8880;
+  --hairline: #e7e4de;
+  --gap: 6px;
+  --row-h: 320px;
+  --serif-display: "Marcellus", "Times New Roman", serif;
+  --serif-text: "Newsreader", Georgia, serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif-text);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Masthead ---- */
+
+.masthead {
+  text-align: center;
+  padding: clamp(4rem, 10vh, 7rem) 1.5rem 0;
+}
+
+.masthead h1 {
+  font-family: var(--serif-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  letter-spacing: 0.38em;
+  text-indent: 0.38em; /* re-center: tracking adds space after the last glyph */
+  text-transform: uppercase;
+}
+
+.rule {
+  width: 2.5rem;
+  height: 1px;
+  background: var(--ink);
+  margin: 1.4rem auto;
+}
+
+.subtitle {
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.04em;
+}
+
+/* ---- Tag filter ---- */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 2rem;
+  padding: 2.8rem 1.5rem 3.2rem;
+}
+
+.tags button {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--serif-text);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 0.3rem 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.tags button:hover {
+  color: var(--ink);
+}
+
+.tags button[aria-pressed="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.tags .count {
+  font-size: 0.62rem;
+  vertical-align: 0.25em;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+/* ---- Justified gallery ----
+   Each item's flex-basis and flex-grow are proportional to its aspect
+   ratio, so every photo in a row renders at the same height with no
+   cropping, whatever mix of portrait / landscape / panorama it holds. */
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 0 clamp(0.75rem, 3vw, 2.5rem);
+}
+
+.grid {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+}
+
+.grid::after {
+  /* Absorbs leftover space so a sparse last row doesn't over-stretch. */
+  content: "";
+  flex-grow: 1000000;
+}
+
+.item {
+  flex-grow: calc(var(--ar) * 100);
+  flex-basis: calc(var(--ar) * var(--row-h));
+  animation: reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: min(calc(var(--i) * 55ms), 660ms);
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--hairline);
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.frame:hover img,
+.frame:focus-visible img {
+  transform: scale(1.02);
+}
+
+.frame .caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 2.2rem 1rem 0.8rem;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  color: #fff;
+  background: linear-gradient(to top, rgba(20, 18, 15, 0.55), transparent);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.frame:hover .caption,
+.frame:focus-visible .caption {
+  opacity: 1;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.empty {
+  text-align: center;
+  font-style: italic;
+  color: var(--ink-soft);
+  padding: 4rem 0;
+}
+
+/* ---- Footer ---- */
+
+footer {
+  text-align: center;
+  padding: 4rem 1.5rem 2.5rem;
+}
+
+footer .rule {
+  margin-bottom: 1.2rem;
+}
+
+footer p {
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* ---- Lightbox ---- */
+
+#lightbox {
+  border: none;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  background: rgba(253, 252, 250, 0.97);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+#lightbox[open] {
+  display: flex;
+}
+
+#lightbox::backdrop {
+  background: transparent;
+}
+
+#lightbox figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  max-width: calc(100vw - 9rem);
+}
+
+#lb-img {
+  max-width: 100%;
+  max-height: 80vh;
+  box-shadow: 0 20px 60px rgba(28, 27, 25, 0.18);
+}
+
+#lightbox figcaption {
+  text-align: center;
+  font-style: italic;
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+}
+
+.lb-tags {
+  display: block;
+  margin-top: 0.35rem;
+  font-style: normal;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.lb-tags:empty {
+  display: none;
+}
+
+#lightbox button {
+  appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--ink);
+  font-family: var(--serif-display);
+  line-height: 1;
+  padding: 0.5rem;
+  transition: opacity 0.2s ease;
+  opacity: 0.55;
+}
+
+#lightbox button:hover {
+  opacity: 1;
+}
+
+.lb-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.4rem;
+  font-size: 2rem;
+}
+
+.lb-arrow {
+  font-size: 2.6rem;
+  flex-shrink: 0;
+}
+
+/* ---- Small screens ---- */
+
+@media (max-width: 700px) {
+  :root {
+    --row-h: 200px;
+  }
+
+  .lb-arrow {
+    position: absolute;
+    bottom: 1rem;
+  }
+
+  .lb-prev {
+    left: 1.4rem;
+  }
+
+  .lb-next {
+    right: 1.4rem;
+  }
+
+  #lightbox figure {
+    max-width: calc(100vw - 3rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    animation: none;
+  }
+
+  .frame img,
+  .frame:hover img {
+    transition: none;
+    transform: none;
+  }
+}

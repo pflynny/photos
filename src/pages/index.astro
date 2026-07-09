@@ -1,0 +1,199 @@
+---
+import { Image, getImage } from "astro:assets";
+import { getPhotos, getAllTags } from "../lib/photos";
+import site from "../data/site.json";
+import "../styles/global.css";
+
+const photos = getPhotos();
+const tags = getAllTags(photos);
+
+// Pre-render a large variant of each photo for the lightbox.
+const fullSize = await Promise.all(
+  photos.map((p) =>
+    getImage({
+      src: p.image,
+      width: Math.min(2000, p.image.width),
+      format: "webp",
+      quality: 85,
+    }),
+  ),
+);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={site.description} />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <title>{site.title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Marcellus&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&display=swap"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='2' width='12' height='12' fill='none' stroke='%23191817' stroke-width='1.5'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="masthead">
+      <h1>{site.name}</h1>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="subtitle">Photographs</p>
+    </header>
+
+    {
+      tags.length > 0 && (
+        <nav class="tags" aria-label="Filter photographs by tag">
+          <button data-tag="all" aria-pressed="true">
+            All <span class="count">{photos.length}</span>
+          </button>
+          {tags.map(({ tag, count }) => (
+            <button data-tag={tag} aria-pressed="false">
+              {tag} <span class="count">{count}</span>
+            </button>
+          ))}
+        </nav>
+      )
+    }
+
+    <main>
+      <ul class="grid" id="grid">
+        {
+          photos.map((p, i) => (
+            <li
+              class="item"
+              style={`--ar: ${(p.image.width / p.image.height).toFixed(4)}; --i: ${i};`}
+              data-tags={p.tags.join(",")}
+            >
+              <a
+                class="frame"
+                href={fullSize[i].src}
+                data-title={p.title}
+                data-tags-label={p.tags.join("  ·  ")}
+              >
+                <Image
+                  src={p.image}
+                  widths={[400, 700, 1000, 1400]}
+                  sizes="(max-width: 700px) 100vw, 60vw"
+                  alt={p.alt}
+                  loading={i < 6 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+                <span class="caption">{p.title}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="empty" id="empty" hidden>Nothing here yet.</p>
+    </main>
+
+    <footer>
+      <div class="rule" aria-hidden="true"></div>
+      <p>© {new Date().getFullYear()} {site.name}</p>
+    </footer>
+
+    <dialog id="lightbox" aria-label="Photograph viewer">
+      <button class="lb-close" data-close aria-label="Close">×</button>
+      <button class="lb-arrow lb-prev" data-prev aria-label="Previous photograph">‹</button>
+      <figure>
+        <img id="lb-img" src="" alt="" />
+        <figcaption>
+          <span id="lb-title"></span>
+          <span id="lb-tags" class="lb-tags"></span>
+        </figcaption>
+      </figure>
+      <button class="lb-arrow lb-next" data-next aria-label="Next photograph">›</button>
+    </dialog>
+
+    <script>
+      // ---- Tag filtering ----
+      const buttons = [...document.querySelectorAll<HTMLButtonElement>(".tags button")];
+      const items = [...document.querySelectorAll<HTMLLIElement>(".item")];
+      const empty = document.getElementById("empty")!;
+
+      function applyFilter(tag: string) {
+        for (const b of buttons) {
+          b.setAttribute("aria-pressed", String(b.dataset.tag === tag));
+        }
+        let visible = 0;
+        for (const item of items) {
+          const itemTags = (item.dataset.tags ?? "").split(",").filter(Boolean);
+          const show = tag === "all" || itemTags.includes(tag);
+          item.hidden = !show;
+          if (show) visible++;
+        }
+        empty.hidden = visible > 0;
+        history.replaceState(null, "", tag === "all" ? location.pathname : `#${encodeURIComponent(tag)}`);
+      }
+
+      for (const b of buttons) {
+        b.addEventListener("click", () => applyFilter(b.dataset.tag!));
+      }
+
+      const initial = decodeURIComponent(location.hash.slice(1));
+      if (initial && buttons.some((b) => b.dataset.tag === initial)) {
+        applyFilter(initial);
+      }
+
+      // ---- Lightbox ----
+      const lightbox = document.getElementById("lightbox") as HTMLDialogElement;
+      const lbImg = document.getElementById("lb-img") as HTMLImageElement;
+      const lbTitle = document.getElementById("lb-title")!;
+      const lbTags = document.getElementById("lb-tags")!;
+      const frames = [...document.querySelectorAll<HTMLAnchorElement>(".frame")];
+      let current = -1;
+
+      function visibleFrames() {
+        return frames.filter((f) => !(f.closest(".item") as HTMLLIElement).hidden);
+      }
+
+      function show(frame: HTMLAnchorElement) {
+        current = frames.indexOf(frame);
+        lbImg.src = frame.href;
+        lbImg.alt = frame.querySelector("img")?.alt ?? "";
+        lbTitle.textContent = frame.dataset.title ?? "";
+        lbTags.textContent = frame.dataset.tagsLabel ?? "";
+        if (!lightbox.open) lightbox.showModal();
+      }
+
+      function step(dir: number) {
+        const vis = visibleFrames();
+        if (vis.length === 0) return;
+        const pos = vis.indexOf(frames[current]);
+        show(vis[(pos + dir + vis.length) % vis.length]);
+      }
+
+      for (const frame of frames) {
+        frame.addEventListener("click", (e) => {
+          e.preventDefault();
+          show(frame);
+        });
+      }
+
+      lightbox.querySelector("[data-close]")!.addEventListener("click", () => lightbox.close());
+      lightbox.querySelector("[data-prev]")!.addEventListener("click", () => step(-1));
+      lightbox.querySelector("[data-next]")!.addEventListener("click", () => step(1));
+
+      lightbox.addEventListener("click", (e) => {
+        // Click on the dialog backdrop (not its contents) closes it.
+        if (e.target === lightbox) lightbox.close();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (!lightbox.open) return;
+        if (e.key === "ArrowLeft") step(-1);
+        if (e.key === "ArrowRight") step(1);
+      });
+
+      lightbox.addEventListener("close", () => {
+        lbImg.src = "";
+      });
+    </script>
+  </body>
+</html>

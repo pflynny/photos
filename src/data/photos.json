@@ -1,0 +1,14 @@
+{
+  "_readme": "Optional metadata, keyed by filename in src/photos. Every photo in the folder appears on the site whether it is listed here or not — add an entry only when you want a title or tags. Fields: title (string), tags (array of strings), alt (string, for accessibility).",
+
+  "sample-01.png": { "title": "Ridge line at dusk", "tags": ["landscape"] },
+  "sample-02.png": { "title": "Morning fog, the valley", "tags": ["landscape", "b&w"] },
+  "sample-03.png": { "title": "Standing stone", "tags": ["detail"] },
+  "sample-04.png": { "title": "Harbour wall", "tags": ["sea"] },
+  "sample-05.png": { "title": "Low tide panorama", "tags": ["sea", "landscape"] },
+  "sample-06.png": { "title": "Window light", "tags": ["detail", "b&w"] },
+  "sample-07.png": { "title": "Field boundary", "tags": ["landscape"] },
+  "sample-08.png": { "title": "North pier", "tags": ["sea"] },
+  "sample-09.png": { "title": "Winter birch", "tags": ["detail"] },
+  "sample-10.png": { "title": "Estuary, late light", "tags": ["sea", "landscape"] }
+}
