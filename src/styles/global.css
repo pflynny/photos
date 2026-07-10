@@ -69,7 +69,8 @@ body {
   padding: 2.8rem 1.5rem 3.2rem;
 }
 
-.tags button {
+.tags button,
+.years button {
   appearance: none;
   border: none;
   background: none;
@@ -84,16 +85,56 @@ body {
   transition: color 0.25s ease, border-color 0.25s ease;
 }
 
-.tags button:hover {
+.tags button:hover,
+.years button:hover {
   color: var(--ink);
 }
 
-.tags button[aria-pressed="true"] {
+.tags button[aria-pressed="true"],
+.years button[aria-pressed="true"],
+#year-toggle[aria-expanded="true"] {
   color: var(--ink);
+}
+
+.tags button[aria-pressed="true"],
+.years button[aria-pressed="true"] {
   border-bottom-color: var(--ink);
 }
 
-.tags .count {
+.tags .divider {
+  align-self: center;
+  width: 1px;
+  height: 0.95rem;
+  background: var(--hairline);
+}
+
+#year-toggle .chev {
+  display: inline-block;
+  font-size: 0.6rem;
+  vertical-align: 0.15em;
+  transition: transform 0.25s ease;
+}
+
+#year-toggle[aria-expanded="true"] .chev {
+  transform: rotate(180deg);
+}
+
+.years {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.6rem;
+  padding: 0 1.5rem 3.2rem;
+  margin-top: -2rem;
+  animation: reveal 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.years[hidden] {
+  display: none;
+}
+
+.tags .count,
+.years .count {
   font-size: 0.62rem;
   vertical-align: 0.25em;
   letter-spacing: 0.08em;
@@ -326,7 +367,8 @@ footer p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .item {
+  .item,
+  .years {
     animation: none;
   }
 

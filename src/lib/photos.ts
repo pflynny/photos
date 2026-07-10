@@ -7,12 +7,19 @@ export interface Photo {
   title: string;
   alt: string;
   tags: string[];
+  year: number | null;
 }
 
 interface PhotoMeta {
   title?: string;
   tags?: string[];
   alt?: string;
+  year?: number;
+}
+
+function yearFromFilename(file: string): number | null {
+  const m = file.match(/^((?:19|20)\d{2})\D/);
+  return m ? Number(m[1]) : null;
 }
 
 // Every image dropped into src/photos appears on the site automatically.
@@ -38,6 +45,7 @@ export function getPhotos(): Photo[] {
       title,
       alt: m.alt ?? title,
       tags: (m.tags ?? []).map((t) => t.toLowerCase()),
+      year: m.year ?? yearFromFilename(file),
     };
   });
   // Reverse filename order, so a date-prefixed naming scheme
@@ -54,4 +62,14 @@ export function getAllTags(photos: Photo[]): { tag: string; count: number }[] {
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => a.tag.localeCompare(b.tag));
+}
+
+export function getAllYears(photos: Photo[]): { year: number; count: number }[] {
+  const counts = new Map<number, number>();
+  for (const p of photos) {
+    if (p.year !== null) counts.set(p.year, (counts.get(p.year) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([year, count]) => ({ year, count }))
+    .sort((a, b) => b.year - a.year); // newest first
 }

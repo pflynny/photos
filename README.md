@@ -16,6 +16,10 @@ every push.
    ```
 
    Photos without an entry still appear — untagged, titled from the filename.
+
+   Photos are also filterable by year (the "Year ▾" button next to the tags).
+   The year comes from a `YYYY-` filename prefix automatically, or set it
+   explicitly with `"year": 2026` in the photo's `photos.json` entry.
 3. Commit and push. Netlify rebuilds and deploys automatically.
 
 That's the whole workflow. Full-resolution originals go in the folder; the

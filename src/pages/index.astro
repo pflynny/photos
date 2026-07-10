@@ -1,11 +1,12 @@
 ---
 import { Image, getImage } from "astro:assets";
-import { getPhotos, getAllTags } from "../lib/photos";
+import { getPhotos, getAllTags, getAllYears } from "../lib/photos";
 import site from "../data/site.json";
 import "../styles/global.css";
 
 const photos = getPhotos();
 const tags = getAllTags(photos);
+const years = getAllYears(photos);
 
 // Pre-render a large variant of each photo for the lightbox.
 const fullSize = await Promise.all(
@@ -46,7 +47,7 @@ const fullSize = await Promise.all(
     </header>
 
     {
-      tags.length > 0 && (
+      (tags.length > 0 || years.length > 0) && (
         <nav class="tags" aria-label="Filter photographs by tag">
           <button data-tag="all" aria-pressed="true">
             All <span class="count">{photos.length}</span>
@@ -54,6 +55,28 @@ const fullSize = await Promise.all(
           {tags.map(({ tag, count }) => (
             <button data-tag={tag} aria-pressed="false">
               {tag} <span class="count">{count}</span>
+            </button>
+          ))}
+          {years.length > 0 && (
+            <>
+              <span class="divider" aria-hidden="true" />
+              <button id="year-toggle" aria-expanded="false" aria-controls="years">
+                <span class="label">Year</span> <span class="chev">▾</span>
+              </button>
+            </>
+          )}
+        </nav>
+      )
+    }
+    {
+      years.length > 0 && (
+        <nav class="years" id="years" hidden aria-label="Filter photographs by year">
+          <button data-year="all" aria-pressed="true">
+            All years
+          </button>
+          {years.map(({ year, count }) => (
+            <button data-year={String(year)} aria-pressed="false">
+              {year} <span class="count">{count}</span>
             </button>
           ))}
         </nav>
@@ -68,6 +91,7 @@ const fullSize = await Promise.all(
               class="item"
               style={`--ar: ${(p.image.width / p.image.height).toFixed(4)}; --i: ${i};`}
               data-tags={p.tags.join(",")}
+              data-year={p.year !== null ? String(p.year) : undefined}
             >
               <a
                 class="frame"
@@ -111,34 +135,76 @@ const fullSize = await Promise.all(
     </dialog>
 
     <script>
-      // ---- Tag filtering ----
-      const buttons = [...document.querySelectorAll<HTMLButtonElement>(".tags button")];
+      // ---- Tag + year filtering (combined with AND) ----
+      const tagButtons = [...document.querySelectorAll<HTMLButtonElement>(".tags button[data-tag]")];
+      const yearButtons = [...document.querySelectorAll<HTMLButtonElement>(".years button[data-year]")];
+      const yearToggle = document.getElementById("year-toggle");
+      const yearsNav = document.getElementById("years");
       const items = [...document.querySelectorAll<HTMLLIElement>(".item")];
       const empty = document.getElementById("empty")!;
+      let activeTag = "all";
+      let activeYear = "all";
 
-      function applyFilter(tag: string) {
-        for (const b of buttons) {
-          b.setAttribute("aria-pressed", String(b.dataset.tag === tag));
+      function applyFilters() {
+        for (const b of tagButtons) {
+          b.setAttribute("aria-pressed", String(b.dataset.tag === activeTag));
+        }
+        for (const b of yearButtons) {
+          b.setAttribute("aria-pressed", String(b.dataset.year === activeYear));
         }
         let visible = 0;
         for (const item of items) {
           const itemTags = (item.dataset.tags ?? "").split(",").filter(Boolean);
-          const show = tag === "all" || itemTags.includes(tag);
+          const show =
+            (activeTag === "all" || itemTags.includes(activeTag)) &&
+            (activeYear === "all" || item.dataset.year === activeYear);
           item.hidden = !show;
           if (show) visible++;
         }
         empty.hidden = visible > 0;
-        history.replaceState(null, "", tag === "all" ? location.pathname : `#${encodeURIComponent(tag)}`);
+        // Collapsed toggle still shows which year is active.
+        if (yearToggle) {
+          yearToggle.querySelector(".label")!.textContent = activeYear === "all" ? "Year" : activeYear;
+        }
+        const params = new URLSearchParams();
+        if (activeTag !== "all") params.set("tag", activeTag);
+        if (activeYear !== "all") params.set("year", activeYear);
+        const query = params.toString();
+        history.replaceState(null, "", query ? `#${query}` : location.pathname);
       }
 
-      for (const b of buttons) {
-        b.addEventListener("click", () => applyFilter(b.dataset.tag!));
+      for (const b of tagButtons) {
+        b.addEventListener("click", () => {
+          activeTag = b.dataset.tag!;
+          applyFilters();
+        });
+      }
+      for (const b of yearButtons) {
+        b.addEventListener("click", () => {
+          activeYear = b.dataset.year!;
+          applyFilters();
+        });
       }
 
-      const initial = decodeURIComponent(location.hash.slice(1));
-      if (initial && buttons.some((b) => b.dataset.tag === initial)) {
-        applyFilter(initial);
+      function setYearsOpen(open: boolean) {
+        if (!yearToggle || !yearsNav) return;
+        yearsNav.hidden = !open;
+        yearToggle.setAttribute("aria-expanded", String(open));
       }
+
+      yearToggle?.addEventListener("click", () => setYearsOpen(yearsNav!.hidden));
+
+      const params = new URLSearchParams(location.hash.slice(1));
+      const initialTag = params.get("tag");
+      const initialYear = params.get("year");
+      if (initialTag && tagButtons.some((b) => b.dataset.tag === initialTag)) {
+        activeTag = initialTag;
+      }
+      if (initialYear && yearButtons.some((b) => b.dataset.year === initialYear)) {
+        activeYear = initialYear;
+        setYearsOpen(true);
+      }
+      if (activeTag !== "all" || activeYear !== "all") applyFilters();
 
       // ---- Lightbox ----
       const lightbox = document.getElementById("lightbox") as HTMLDialogElement;
