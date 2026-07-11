@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import { getPhotos, type Photo } from "../../lib/photos";
+import { getPhotos, getExifParts, type Photo } from "../../lib/photos";
 import site from "../../data/site.json";
 import "../../styles/global.css";
 
@@ -23,6 +23,8 @@ interface Props {
 }
 
 const { photo, prev, next } = Astro.props;
+
+const exif = await getExifParts(photo);
 
 // Never request a variant wider than the original.
 const widths = [800, 1200, 1600, 2000].filter((w) => w < photo.image.width);
@@ -64,10 +66,12 @@ widths.push(photo.image.width);
         />
         <figcaption>
           <h1>{photo.title}</h1>
+          {photo.caption && <p class="photo-caption">{photo.caption}</p>}
           <p class="photo-meta">
             {photo.tags.map((tag) => <a href={`/#tag=${encodeURIComponent(tag)}`}>{tag}</a>)}
             {photo.year !== null && <a href={`/#year=${photo.year}`}>{photo.year}</a>}
           </p>
+          {exif.length > 0 && <p class="photo-exif">{exif.join("  ·  ")}</p>}
         </figcaption>
       </figure>
 
@@ -80,10 +84,16 @@ widths.push(photo.image.width);
 
     <footer>
       <div class="rule" aria-hidden="true"></div>
-      <p>© {new Date().getFullYear()} {site.name}</p>
+      <p>© {new Date().getFullYear()} {site.name} <span class="foot-sep">·</span> <a href="/about/">About</a></p>
     </footer>
 
     <script>
+      document.addEventListener("contextmenu", (e) => {
+        if (e.target instanceof HTMLImageElement) e.preventDefault();
+      });
+      document.addEventListener("dragstart", (e) => {
+        if (e.target instanceof HTMLImageElement) e.preventDefault();
+      });
       document.addEventListener("keydown", (e) => {
         if (e.key === "ArrowLeft") {
           location.href = (document.getElementById("prev-link") as HTMLAnchorElement).href;

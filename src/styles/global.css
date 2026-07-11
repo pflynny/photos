@@ -1,5 +1,7 @@
 :root {
+  color-scheme: light;
   --paper: #fdfcfa;
+  --paper-translucent: rgba(253, 252, 250, 0.97);
   --ink: #1c1b19;
   --ink-soft: #8c8880;
   --hairline: #e7e4de;
@@ -7,6 +9,18 @@
   --row-h: 320px;
   --serif-display: "Marcellus", "Times New Roman", serif;
   --serif-text: "Newsreader", Georgia, serif;
+}
+
+/* Dark mode follows the visitor's system preference. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #171614;
+    --paper-translucent: rgba(23, 22, 20, 0.97);
+    --ink: #e8e5de;
+    --ink-soft: #8f8b82;
+    --hairline: #2e2c28;
+  }
 }
 
 * {
@@ -27,6 +41,13 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Deter casual image saving (real protection is impossible client-side). */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* ---- Masthead ---- */
@@ -253,6 +274,22 @@ footer p {
   color: var(--ink-soft);
 }
 
+footer a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+footer a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.foot-sep {
+  margin: 0 0.5rem;
+}
+
 /* ---- Lightbox ---- */
 
 #lightbox {
@@ -261,7 +298,8 @@ footer p {
   height: 100vh;
   max-width: 100vw;
   max-height: 100vh;
-  background: rgba(253, 252, 250, 0.97);
+  background: var(--paper-translucent);
+  color: var(--ink);
   display: none;
   align-items: center;
   justify-content: center;
@@ -412,6 +450,15 @@ footer p {
   text-align: center;
 }
 
+.photo-caption {
+  max-width: 34rem;
+  margin-top: 0.6rem;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
 .photo-meta {
   display: flex;
   justify-content: center;
@@ -430,6 +477,57 @@ footer p {
 }
 
 .photo-meta a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.photo-exif {
+  margin-top: 0.7rem;
+  text-align: center;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  opacity: 0.85;
+}
+
+/* ---- About page ---- */
+
+.about-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(3rem, 9vh, 6rem) 1.5rem 0;
+}
+
+.about-heading {
+  font-family: var(--serif-text);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.3rem;
+  letter-spacing: 0.03em;
+}
+
+.about-text {
+  max-width: 34rem;
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.about-back {
+  margin-top: 2.5rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.about-back:hover {
   color: var(--ink);
   border-bottom-color: var(--ink);
 }

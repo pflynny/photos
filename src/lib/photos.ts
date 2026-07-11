@@ -1,4 +1,6 @@
+import { fileURLToPath } from "node:url";
 import type { ImageMetadata } from "astro";
+import exifr from "exifr";
 import metadata from "../data/photos.json";
 
 export interface Photo {
@@ -9,6 +11,7 @@ export interface Photo {
   alt: string;
   tags: string[];
   year: number | null;
+  caption: string | null;
 }
 
 interface PhotoMeta {
@@ -16,6 +19,7 @@ interface PhotoMeta {
   tags?: string[];
   alt?: string;
   year?: number;
+  caption?: string;
 }
 
 function yearFromFilename(file: string): number | null {
@@ -62,6 +66,7 @@ export function getPhotos(): Photo[] {
       alt: m.alt ?? title,
       tags: (m.tags ?? []).map((t) => t.toLowerCase()),
       year: m.year ?? yearFromFilename(file),
+      caption: m.caption ?? null,
     };
   });
   // Reverse filename order, so a date-prefixed naming scheme
@@ -78,6 +83,39 @@ export function getAllTags(photos: Photo[]): { tag: string; count: number }[] {
   return [...counts.entries()]
     .map(([tag, count]) => ({ tag, count }))
     .sort((a, b) => a.tag.localeCompare(b.tag));
+}
+
+// Camera settings for a photo's page, read from its EXIF at build time.
+// Photos without EXIF (scans, exports that strip it) return [] and the
+// page simply omits the line.
+export async function getExifParts(photo: Photo): Promise<string[]> {
+  const path = fileURLToPath(new URL(`../photos/${photo.file}`, import.meta.url));
+  let data: Record<string, unknown> | undefined;
+  try {
+    data = await exifr.parse(path, [
+      "Make", "Model", "LensModel", "FNumber", "ExposureTime", "ISO", "FocalLength",
+    ]);
+  } catch {
+    return [];
+  }
+  if (!data) return [];
+
+  const parts: string[] = [];
+  const make = data.Make as string | undefined;
+  const model = data.Model as string | undefined;
+  if (model) {
+    // Avoid "Canon Canon EOS R6" — many makers repeat themselves in Model.
+    const redundant = make && model.toLowerCase().includes(make.toLowerCase().split(" ")[0]);
+    parts.push(redundant || !make ? model : `${make} ${model}`);
+  }
+  if (typeof data.LensModel === "string" && data.LensModel !== model) parts.push(data.LensModel);
+  if (typeof data.FocalLength === "number") parts.push(`${Math.round(data.FocalLength)}mm`);
+  if (typeof data.FNumber === "number") parts.push(`f/${data.FNumber}`);
+  if (typeof data.ExposureTime === "number") {
+    parts.push(data.ExposureTime >= 1 ? `${data.ExposureTime}s` : `1/${Math.round(1 / data.ExposureTime)}s`);
+  }
+  if (typeof data.ISO === "number") parts.push(`ISO ${data.ISO}`);
+  return parts;
 }
 
 export function getAllYears(photos: Photo[]): { year: number; count: number }[] {

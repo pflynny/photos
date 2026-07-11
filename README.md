@@ -23,7 +23,17 @@ every push.
 
    Every photo also gets its own shareable page at `/photo/<filename-slug>/`
    (e.g. `/photo/2026-07-09-harbour-wall/`), generated automatically — reach
-   it via the "photo page" link in the lightbox.
+   it via the "photo page" link in the lightbox. The photo page also shows:
+
+   - an optional `"caption"` from `photos.json` — a sentence or two about
+     the photograph;
+   - camera settings (camera, lens, focal length, aperture, shutter, ISO),
+     read automatically from the photo's EXIF at build time. Photos without
+     EXIF simply omit the line.
+
+   The whole site follows the visitor's system light/dark preference, and
+   images block right-click/drag saving (a deterrent only — anyone
+   determined can still save them).
 3. Commit and push. Netlify rebuilds and deploys automatically.
 
 That's the whole workflow. Full-resolution originals go in the folder; the
@@ -35,9 +45,10 @@ needs resizing by hand.
 Delete the file from `src/photos/` (and its `photos.json` entry, if it has
 one), then push.
 
-## Changing the site name / title
+## Changing the site name / title / about text
 
-Edit `src/data/site.json`.
+Edit `src/data/site.json`. The `about` text appears at `/about/`, linked
+from the footer.
 
 ## Running locally
 

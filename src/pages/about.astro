@@ -1,0 +1,41 @@
+---
+import site from "../data/site.json";
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+    <meta name="referrer" content="no-referrer" />
+    <title>About — {site.name}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Marcellus&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&display=swap"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='2' width='12' height='12' fill='none' stroke='%23191817' stroke-width='1.5'/></svg>"
+    />
+  </head>
+  <body>
+    <header class="masthead masthead-small">
+      <a class="wordmark" href="/">{site.name}</a>
+    </header>
+
+    <main class="about-main">
+      <h1 class="about-heading">About</h1>
+      <div class="rule" aria-hidden="true"></div>
+      <p class="about-text">{site.about}</p>
+      <a class="about-back" href="/">Gallery</a>
+    </main>
+
+    <footer>
+      <div class="rule" aria-hidden="true"></div>
+      <p>© {new Date().getFullYear()} {site.name}</p>
+    </footer>
+  </body>
+</html>

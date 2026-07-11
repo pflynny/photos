@@ -1,5 +1,6 @@
 {
   "name": "Paul Flynn",
   "title": "Paul Flynn — Photographs",
-  "description": "A personal collection of photographs by Paul Flynn."
+  "description": "A personal collection of photographs by Paul Flynn.",
+  "about": "Placeholder about text — edit this in src/data/site.json. A sentence or two on who you are, what you photograph, and why. That's all this page needs."
 }

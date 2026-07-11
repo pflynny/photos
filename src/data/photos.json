@@ -1,7 +1,12 @@
 {
-  "_readme": "Optional metadata, keyed by filename in src/photos. Every photo in the folder appears on the site whether it is listed here or not — add an entry only when you want a title, tags, or a year. Fields: title (string), tags (array of strings), year (number — inferred automatically from a YYYY- filename prefix if omitted), alt (string, for accessibility).",
+  "_readme": "Optional metadata, keyed by filename in src/photos. Every photo in the folder appears on the site whether it is listed here or not — add an entry only when you want extra detail. Fields: title (string), tags (array of strings), year (number — inferred automatically from a YYYY- filename prefix if omitted), caption (string — a short story shown on the photo's page), alt (string, for accessibility). Camera settings are read from the photo's EXIF automatically.",
 
-  "sample-01.png": { "title": "Ridge line at dusk", "tags": ["landscape"], "year": 2024 },
+  "sample-01.jpg": {
+    "title": "Ridge line at dusk",
+    "tags": ["landscape"],
+    "year": 2024,
+    "caption": "Sample caption: a sentence or two about where and how the photograph was made appears here, beneath the title on the photo's own page."
+  },
   "sample-02.png": { "title": "Morning fog, the valley", "tags": ["landscape", "b&w"], "year": 2024 },
   "sample-03.png": { "title": "Standing stone", "tags": ["detail"], "year": 2024 },
   "sample-04.png": { "title": "Harbour wall", "tags": ["sea"], "year": 2024 },
