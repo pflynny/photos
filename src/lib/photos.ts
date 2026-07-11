@@ -3,6 +3,7 @@ import metadata from "../data/photos.json";
 
 export interface Photo {
   file: string;
+  slug: string;
   image: ImageMetadata;
   title: string;
   alt: string;
@@ -32,15 +33,30 @@ function titleFromFilename(file: string): string {
   return file.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
 }
 
+function slugFromFilename(file: string): string {
+  return file
+    .replace(/\.[^.]+$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function getPhotos(): Photo[] {
   const meta = metadata as Record<string, PhotoMeta | string>;
+  const seenSlugs = new Set<string>();
   const photos = Object.entries(images).map(([path, mod]) => {
     const file = path.split("/").pop()!;
     const entry = meta[file];
     const m: PhotoMeta = typeof entry === "object" ? entry : {};
     const title = m.title ?? titleFromFilename(file);
+    // Filenames are unique, but slugging can collide ("Pier 1.jpg" vs
+    // "pier-1.png") — suffix until distinct.
+    let slug = slugFromFilename(file);
+    while (seenSlugs.has(slug)) slug += "-2";
+    seenSlugs.add(slug);
     return {
       file,
+      slug,
       image: mod.default,
       title,
       alt: m.alt ?? title,

@@ -312,6 +312,24 @@ footer p {
   display: none;
 }
 
+.lb-page {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-style: normal;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hairline);
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.lb-page:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
 #lightbox button {
   appearance: none;
   border: none;
@@ -339,6 +357,116 @@ footer p {
 .lb-arrow {
   font-size: 2.6rem;
   flex-shrink: 0;
+}
+
+/* ---- Per-photo pages ---- */
+
+.masthead-small {
+  padding: clamp(2rem, 5vh, 3.5rem) 1.5rem 0;
+}
+
+.masthead-small .wordmark {
+  font-family: var(--serif-display);
+  font-size: 1rem;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.masthead-small .wordmark:hover {
+  color: var(--ink-soft);
+}
+
+.photo-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2rem;
+  padding: clamp(2rem, 5vh, 3.5rem) clamp(1rem, 4vw, 3rem) 0;
+}
+
+.photo-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  animation: reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.photo-figure img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 76vh;
+  box-shadow: 0 20px 60px rgba(28, 27, 25, 0.14);
+}
+
+.photo-figure h1 {
+  font-family: var(--serif-text);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.2rem;
+  letter-spacing: 0.03em;
+  text-align: center;
+}
+
+.photo-meta {
+  display: flex;
+  justify-content: center;
+  gap: 1.4rem;
+  margin-top: 0.5rem;
+}
+
+.photo-meta a {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.photo-meta a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+.pager {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 900px;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.pager a {
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  text-decoration: none;
+  transition: color 0.25s ease;
+}
+
+.pager a:hover {
+  color: var(--ink);
+}
+
+.pager .pager-home {
+  font-style: normal;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.pager a[rel="next"] {
+  text-align: right;
 }
 
 /* ---- Small screens ---- */

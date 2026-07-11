@@ -98,6 +98,7 @@ const fullSize = await Promise.all(
                 href={fullSize[i].src}
                 data-title={p.title}
                 data-tags-label={p.tags.join("  ·  ")}
+                data-page={`/photo/${p.slug}/`}
               >
                 <Image
                   src={p.image}
@@ -129,6 +130,7 @@ const fullSize = await Promise.all(
         <figcaption>
           <span id="lb-title"></span>
           <span id="lb-tags" class="lb-tags"></span>
+          <a id="lb-page" class="lb-page" href="/">photo page</a>
         </figcaption>
       </figure>
       <button class="lb-arrow lb-next" data-next aria-label="Next photograph">›</button>
@@ -211,6 +213,7 @@ const fullSize = await Promise.all(
       const lbImg = document.getElementById("lb-img") as HTMLImageElement;
       const lbTitle = document.getElementById("lb-title")!;
       const lbTags = document.getElementById("lb-tags")!;
+      const lbPage = document.getElementById("lb-page") as HTMLAnchorElement;
       const frames = [...document.querySelectorAll<HTMLAnchorElement>(".frame")];
       let current = -1;
 
@@ -224,6 +227,7 @@ const fullSize = await Promise.all(
         lbImg.alt = frame.querySelector("img")?.alt ?? "";
         lbTitle.textContent = frame.dataset.title ?? "";
         lbTags.textContent = frame.dataset.tagsLabel ?? "";
+        lbPage.href = frame.dataset.page ?? "/";
         if (!lightbox.open) lightbox.showModal();
       }
 

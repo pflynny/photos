@@ -1,0 +1,97 @@
+---
+import { Image } from "astro:assets";
+import { getPhotos, type Photo } from "../../lib/photos";
+import site from "../../data/site.json";
+import "../../styles/global.css";
+
+export function getStaticPaths() {
+  const photos = getPhotos();
+  return photos.map((photo, i) => ({
+    params: { slug: photo.slug },
+    props: {
+      photo,
+      prev: photos[(i - 1 + photos.length) % photos.length],
+      next: photos[(i + 1) % photos.length],
+    },
+  }));
+}
+
+interface Props {
+  photo: Photo;
+  prev: Photo;
+  next: Photo;
+}
+
+const { photo, prev, next } = Astro.props;
+
+// Never request a variant wider than the original.
+const widths = [800, 1200, 1600, 2000].filter((w) => w < photo.image.width);
+widths.push(photo.image.width);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+    <meta name="referrer" content="no-referrer" />
+    <title>{photo.title} — {site.name}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Marcellus&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&display=swap"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='2' width='12' height='12' fill='none' stroke='%23191817' stroke-width='1.5'/></svg>"
+    />
+  </head>
+  <body class="photo-page">
+    <header class="masthead masthead-small">
+      <a class="wordmark" href="/">{site.name}</a>
+    </header>
+
+    <main class="photo-main">
+      <figure class="photo-figure">
+        <Image
+          src={photo.image}
+          widths={widths}
+          sizes="(max-width: 900px) 100vw, 85vw"
+          alt={photo.alt}
+          loading="eager"
+          decoding="async"
+        />
+        <figcaption>
+          <h1>{photo.title}</h1>
+          <p class="photo-meta">
+            {photo.tags.map((tag) => <a href={`/#tag=${encodeURIComponent(tag)}`}>{tag}</a>)}
+            {photo.year !== null && <a href={`/#year=${photo.year}`}>{photo.year}</a>}
+          </p>
+        </figcaption>
+      </figure>
+
+      <nav class="pager" aria-label="Photograph navigation">
+        <a href={`/photo/${prev.slug}/`} rel="prev" id="prev-link">‹ {prev.title}</a>
+        <a href="/" class="pager-home">Gallery</a>
+        <a href={`/photo/${next.slug}/`} rel="next" id="next-link">{next.title} ›</a>
+      </nav>
+    </main>
+
+    <footer>
+      <div class="rule" aria-hidden="true"></div>
+      <p>© {new Date().getFullYear()} {site.name}</p>
+    </footer>
+
+    <script>
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowLeft") {
+          location.href = (document.getElementById("prev-link") as HTMLAnchorElement).href;
+        }
+        if (e.key === "ArrowRight") {
+          location.href = (document.getElementById("next-link") as HTMLAnchorElement).href;
+        }
+      });
+    </script>
+  </body>
+</html>

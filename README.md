@@ -20,6 +20,10 @@ every push.
    Photos are also filterable by year (the "Year ▾" button next to the tags).
    The year comes from a `YYYY-` filename prefix automatically, or set it
    explicitly with `"year": 2026` in the photo's `photos.json` entry.
+
+   Every photo also gets its own shareable page at `/photo/<filename-slug>/`
+   (e.g. `/photo/2026-07-09-harbour-wall/`), generated automatically — reach
+   it via the "photo page" link in the lightbox.
 3. Commit and push. Netlify rebuilds and deploys automatically.
 
 That's the whole workflow. Full-resolution originals go in the folder; the
