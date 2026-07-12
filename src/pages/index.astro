@@ -229,14 +229,34 @@ const fullSize = await Promise.all(
         return frames.filter((f) => !(f.closest(".item") as HTMLLIElement).hidden);
       }
 
+      // Preload the neighbouring full-size images so stepping feels instant.
+      const preloaded = new Set<string>();
+      function preload(href: string) {
+        if (preloaded.has(href)) return;
+        preloaded.add(href);
+        new Image().src = href;
+      }
+      function preloadNeighbours() {
+        const vis = visibleFrames();
+        const pos = vis.indexOf(frames[current]);
+        if (pos === -1 || vis.length < 2) return;
+        preload(vis[(pos + 1) % vis.length].href);
+        preload(vis[(pos - 1 + vis.length) % vis.length].href);
+      }
+
       function show(frame: HTMLAnchorElement) {
         current = frames.indexOf(frame);
+        if (lightbox.open && lbImg.src !== frame.href) lbImg.style.opacity = "0";
+        lbImg.onload = () => {
+          lbImg.style.opacity = "1";
+        };
         lbImg.src = frame.href;
         lbImg.alt = frame.querySelector("img")?.alt ?? "";
         lbTitle.textContent = frame.dataset.title ?? "";
         lbTags.textContent = frame.dataset.tagsLabel ?? "";
         lbPage.href = frame.dataset.page ?? "/";
         if (!lightbox.open) lightbox.showModal();
+        preloadNeighbours();
       }
 
       function step(dir: number) {
@@ -267,6 +287,31 @@ const fullSize = await Promise.all(
         if (e.key === "ArrowLeft") step(-1);
         if (e.key === "ArrowRight") step(1);
       });
+
+      // Swipe: left/right to step, down to close.
+      let touchX = 0;
+      let touchY = 0;
+      lightbox.addEventListener(
+        "touchstart",
+        (e) => {
+          touchX = e.touches[0].clientX;
+          touchY = e.touches[0].clientY;
+        },
+        { passive: true },
+      );
+      lightbox.addEventListener(
+        "touchend",
+        (e) => {
+          const dx = e.changedTouches[0].clientX - touchX;
+          const dy = e.changedTouches[0].clientY - touchY;
+          if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+            step(dx < 0 ? 1 : -1);
+          } else if (dy > 72 && dy > Math.abs(dx) * 1.5) {
+            lightbox.close();
+          }
+        },
+        { passive: true },
+      );
 
       lightbox.addEventListener("close", () => {
         lbImg.src = "";
