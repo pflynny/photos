@@ -1,6 +1,6 @@
 ---
 import { Image, getImage } from "astro:assets";
-import { getPhotos, getAllTags, getAllYears } from "../lib/photos";
+import { getPhotos, getAllTags, getAllYears, displayWidth } from "../lib/photos";
 import site from "../data/site.json";
 import "../styles/global.css";
 
@@ -8,12 +8,13 @@ const photos = getPhotos();
 const tags = getAllTags(photos);
 const years = getAllYears(photos);
 
-// Pre-render a large variant of each photo for the lightbox.
+// Pre-render the lightbox variant of each photo, capped at MAX_EDGE
+// on the long side — this is the largest image the site ever serves.
 const fullSize = await Promise.all(
   photos.map((p) =>
     getImage({
       src: p.image,
-      width: Math.min(2000, p.image.width),
+      width: displayWidth(p.image),
       format: "webp",
       quality: 85,
     }),
@@ -102,7 +103,8 @@ const fullSize = await Promise.all(
               >
                 <Image
                   src={p.image}
-                  widths={[400, 700, 1000, 1400]}
+                  width={Math.min(1000, displayWidth(p.image))}
+                  widths={[400, 700, 1000, 1400].filter((w) => w <= displayWidth(p.image))}
                   sizes="(max-width: 700px) 100vw, 60vw"
                   alt={p.alt}
                   loading={i < 6 ? "eager" : "lazy"}

@@ -22,6 +22,20 @@ interface PhotoMeta {
   caption?: string;
 }
 
+// Longest edge, in pixels, of any image the site serves. Originals in
+// src/photos are never published — only variants generated at build time —
+// so this is the ceiling on what a visitor can save. 1600px looks sharp on
+// laptops and phones but is too small for quality prints or resale.
+export const MAX_EDGE = 1600;
+
+// Width that keeps the LONG edge within MAX_EDGE (portraits are taller
+// than wide, so their width must come in under it), never upscaling.
+export function displayWidth(image: ImageMetadata): number {
+  const ar = image.width / image.height;
+  const cap = ar >= 1 ? MAX_EDGE : Math.round(MAX_EDGE * ar);
+  return Math.min(image.width, cap);
+}
+
 function yearFromFilename(file: string): number | null {
   const m = file.match(/^((?:19|20)\d{2})\D/);
   return m ? Number(m[1]) : null;

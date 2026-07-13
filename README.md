@@ -40,6 +40,25 @@ That's the whole workflow. Full-resolution originals go in the folder; the
 build generates responsive, optimized WebP versions automatically, so nothing
 needs resizing by hand.
 
+Note: iPhone HEIC files won't display in browsers — convert to JPEG first
+(`sips -s format jpeg photo.heic --out photo.jpg` keeps the EXIF). Zero-pad
+dates in filenames (`2025-03-31`, not `2025-3-31`) or ordering goes wrong.
+
+## Image resolution cap
+
+Originals are never published. Every image the site serves is capped at
+**1600px on the long edge** (`MAX_EDGE` in `src/lib/photos.ts`) — sharp on
+screens, too small for quality prints or resale. Raise or lower the constant
+and push to change the ceiling.
+
+## Password protection
+
+The site is gated with a password prompt when the `SITE_PASSWORD`
+environment variable is set in Netlify (**Site configuration → Environment
+variables**, then trigger a redeploy). Visitors enter any username and that
+password. Remove the variable and redeploy to open the site again. Local
+dev is never gated. Implemented in `netlify/edge-functions/auth.ts`.
+
 ## Removing a photo
 
 Delete the file from `src/photos/` (and its `photos.json` entry, if it has
@@ -65,10 +84,7 @@ One-time setup:
 2. In Netlify: **Add new site → Import an existing project**, pick the repo.
 3. Netlify reads `netlify.toml` — no settings needed. Deploy.
 
+4. Set `SITE_PASSWORD` in the site's environment variables to enable the
+   password gate (see above).
+
 Every subsequent `git push` deploys automatically.
-
-## Placeholder photos
-
-The `sample-*.png` files in `src/photos/` are generated placeholders so the
-layout can be previewed. Delete them (and their entries in
-`src/data/photos.json`) once real photos are in.

@@ -1,6 +1,6 @@
 ---
 import { Image } from "astro:assets";
-import { getPhotos, getExifParts, type Photo } from "../../lib/photos";
+import { getPhotos, getExifParts, displayWidth, type Photo } from "../../lib/photos";
 import site from "../../data/site.json";
 import "../../styles/global.css";
 
@@ -26,9 +26,11 @@ const { photo, prev, next } = Astro.props;
 
 const exif = await getExifParts(photo);
 
-// Never request a variant wider than the original.
-const widths = [800, 1200, 1600, 2000].filter((w) => w < photo.image.width);
-widths.push(photo.image.width);
+// Cap at MAX_EDGE on the long side (see photos.ts) — the original's
+// resolution is never published.
+const maxWidth = displayWidth(photo.image);
+const widths = [800, 1200].filter((w) => w < maxWidth);
+widths.push(maxWidth);
 ---
 
 <html lang="en">
@@ -58,6 +60,7 @@ widths.push(photo.image.width);
       <figure class="photo-figure">
         <Image
           src={photo.image}
+          width={maxWidth}
           widths={widths}
           sizes="(max-width: 900px) 100vw, 85vw"
           alt={photo.alt}
