@@ -1,19 +1,7 @@
 {
   "_readme": "Optional metadata, keyed by filename in src/photos. Every photo in the folder appears on the site whether it is listed here or not — add an entry only when you want extra detail. Fields: title (string), tags (array of strings), year (number — inferred automatically from a YYYY- filename prefix if omitted), caption (string — a short story shown on the photo's page), alt (string, for accessibility). Camera settings are read from the photo's EXIF automatically.",
 
-  "sample-01.jpg": {
-    "title": "Ridge line at dusk",
-    "tags": ["landscape"],
-    "year": 2024,
-    "caption": "Sample caption: a sentence or two about where and how the photograph was made appears here, beneath the title on the photo's own page."
-  },
-  "sample-02.png": { "title": "Morning fog, the valley", "tags": ["landscape", "b&w"], "year": 2024 },
-  "sample-03.png": { "title": "Standing stone", "tags": ["detail"], "year": 2024 },
-  "sample-04.png": { "title": "Harbour wall", "tags": ["sea"], "year": 2024 },
-  "sample-05.png": { "title": "Low tide panorama", "tags": ["sea", "landscape"], "year": 2025 },
-  "sample-06.png": { "title": "Window light", "tags": ["detail", "b&w"], "year": 2025 },
-  "sample-07.png": { "title": "Field boundary", "tags": ["landscape"], "year": 2025 },
-  "sample-08.png": { "title": "North pier", "tags": ["sea"], "year": 2026 },
-  "sample-09.png": { "title": "Winter birch", "tags": ["detail"], "year": 2026 },
-  "sample-10.png": { "title": "Estuary, late light", "tags": ["sea", "landscape"], "year": 2026 }
+  "2025-03-31-sunrise.jpg": { "title": "Sunrise" },
+  "2025-04-28-bluebells.jpg": { "title": "Bluebells" },
+  "2025-06-20-camping-sunset.jpg": { "title": "Camping sunset" }
 }
